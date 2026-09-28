@@ -3,268 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FestPass - College Fest Ticketing & QR Check-in System</title>
-    <!-- Google Fonts -->
+    <title>FestPass — Enterprise Fest Ticketing & QR Check-in System</title>
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Line Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <!-- Navigation Header -->
-    <header class="navbar">
-        <div class="nav-container">
-            <div class="brand">
-                <div class="brand-icon">
-                    <i class="fa-solid fa-qrcode"></i>
-                </div>
-                <div class="brand-text">
-                    <span class="brand-name">FestPass</span>
-                    <span class="brand-tagline">QR Ticketing & Gate Control</span>
-                </div>
+<body class="app-layout">
+
+    <!-- ENTERPRISE SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-logo"><i class="fa-solid fa-qrcode"></i></div>
+            <div class="brand-title">
+                <span class="brand-name">FestPass</span>
+                <span class="brand-sub">Event Operations ERP</span>
             </div>
-            <nav class="nav-links">
-                <button class="nav-btn active" onclick="showTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
-                <button class="nav-btn" onclick="showTab('events')"><i class="fa-solid fa-calendar-plus"></i> Events</button>
-                <button class="nav-btn" onclick="showTab('ticketing')"><i class="fa-solid fa-ticket"></i> Issue Tickets</button>
-                <button class="nav-btn" onclick="showTab('validation')"><i class="fa-solid fa-id-card-clip"></i> Gate Check-in</button>
-                <a href="/swagger-ui.html" target="_blank" class="nav-btn swagger-btn"><i class="fa-solid fa-code"></i> Swagger API</a>
-            </nav>
         </div>
-    </header>
 
-    <main class="main-content">
-        <!-- Notification Banner -->
-        <div id="toast-container" class="toast-container"></div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">OVERVIEW</div>
+            <button class="sidebar-btn active" onclick="showTab('dashboard')">
+                <i class="fa-solid fa-chart-simple"></i> Dashboard
+            </button>
 
-        <!-- TAB 1: DASHBOARD (Real-time Headcount & Capacity) -->
-        <section id="dashboard-tab" class="tab-content active">
-            <div class="section-header">
-                <div>
-                    <h2><i class="fa-solid fa-chart-line"></i> Real-time Headcount & Capacity</h2>
-                    <p class="section-desc">Monitor live attendance and event capacity in real-time</p>
-                </div>
-                <button class="btn btn-outline" onclick="loadDashboardData()"><i class="fa-solid fa-rotate-right"></i> Refresh Stats</button>
+            <div class="nav-section-label">EVENT MANAGEMENT</div>
+            <button class="sidebar-btn" onclick="showTab('events')">
+                <i class="fa-solid fa-calendar"></i> Events & Capacity
+            </button>
+
+            <div class="nav-section-label">TICKETING</div>
+            <button class="sidebar-btn" onclick="showTab('ticketing')">
+                <i class="fa-solid fa-ticket"></i> Issue Tickets
+            </button>
+            <button class="sidebar-btn" onclick="showTab('validation')">
+                <i class="fa-solid fa-id-card"></i> Gate Check-in
+            </button>
+
+            <div class="nav-section-label">ATTENDEES</div>
+            <button class="sidebar-btn" onclick="showTab('attendees')">
+                <i class="fa-solid fa-users"></i> Attendees List
+            </button>
+
+            <div class="nav-section-label">ADMINISTRATION</div>
+            <a href="/swagger-ui.html" target="_blank" class="sidebar-btn external-link">
+                <i class="fa-solid fa-code"></i> OpenAPI / Swagger <i class="fa-solid fa-arrow-up-right-from-square icon-sm"></i>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="version-label">FestPass Enterprise v1.0</span>
+        </div>
+    </aside>
+
+    <!-- MAIN APP CONTENT WRAPPER -->
+    <div class="main-wrapper">
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <div class="header-title-container">
+                <h1 id="page-title">Dashboard</h1>
             </div>
-
-            <!-- Stats Overview Cards -->
-            <div class="stats-grid">
-                <div class="stat-card glass">
-                    <div class="stat-icon purple"><i class="fa-solid fa-calendar-days"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Events</span>
-                        <h3 id="stat-total-events">0</h3>
-                    </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" placeholder="Search events, QR code tokens, attendees..." onkeyup="handleGlobalSearch(this.value)">
                 </div>
-                <div class="stat-card glass">
-                    <div class="stat-icon blue"><i class="fa-solid fa-ticket"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Tickets Issued</span>
-                        <h3 id="stat-total-tickets">0</h3>
-                    </div>
+                <div class="system-status">
+                    <span class="status-indicator-dot online"></span>
+                    <span>System Online</span>
                 </div>
-                <div class="stat-card glass">
-                    <div class="stat-icon green"><i class="fa-solid fa-user-check"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Gate Check-ins</span>
-                        <h3 id="stat-total-checkedin">0</h3>
-                    </div>
-                </div>
-                <div class="stat-card glass">
-                    <div class="stat-icon orange"><i class="fa-solid fa-users-slash"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Capacity</span>
-                        <h3 id="stat-total-capacity">0</h3>
+                <div class="user-profile">
+                    <div class="avatar">AO</div>
+                    <div class="user-info">
+                        <span class="user-name">Admin Operations</span>
+                        <span class="user-role">Fest Administrator</span>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <!-- Real-time Headcount Progress List -->
-            <div class="card glass shadow-lg">
-                <div class="card-header">
-                    <h3><i class="fa-solid fa-chart-bar"></i> Fest Events Capacity & Headcount Tracker</h3>
-                    <span class="live-badge"><span class="pulse"></span> LIVE</span>
-                </div>
-                <div class="card-body">
-                    <div id="headcount-list" class="headcount-grid">
-                        <div class="empty-state">Loading real-time headcount data...</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- MAIN CONTENT AREA -->
+        <main class="content-body">
+            <!-- Toast Notifications Container -->
+            <div id="toast-container" class="toast-container"></div>
 
-        <!-- TAB 2: FEST EVENTS MANAGEMENT -->
-        <section id="events-tab" class="tab-content">
-            <div class="grid-2col">
-                <!-- Create Event Form -->
-                <div class="card glass">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-calendar-plus"></i> Create Fest Event</h3>
+            <!-- TAB 1: DASHBOARD -->
+            <section id="dashboard-tab" class="tab-content active">
+                <!-- KPI Blocks -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <span class="kpi-label">TOTAL FEST EVENTS</span>
+                        <div class="kpi-value" id="stat-total-events">0</div>
+                        <span class="kpi-subtext">Active & Scheduled</span>
                     </div>
-                    <div class="card-body">
-                        <form id="create-event-form" onsubmit="handleCreateEvent(event)">
-                            <div class="form-group">
-                                <label for="event-name">Event Name *</label>
-                                <input type="text" id="event-name" required placeholder="e.g. Hackathon 2026 / Battle of Bands">
-                            </div>
-                            <div class="form-group">
-                                <label for="event-venue">Venue / Auditorium *</label>
-                                <input type="text" id="event-venue" required placeholder="e.g. Main Auditorium Hall B">
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="event-capacity">Capacity Limit *</label>
-                                    <input type="number" id="event-capacity" min="1" required placeholder="e.g. 100">
-                                </div>
-                                <div class="form-group">
-                                    <label for="event-price">Ticket Price ($) *</label>
-                                    <input type="number" id="event-price" step="0.01" min="0" required placeholder="e.g. 29.99">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="event-date">Event Date & Time *</label>
-                                <input type="datetime-local" id="event-date" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="event-desc">Description</label>
-                                <textarea id="event-desc" rows="3" placeholder="Brief event description..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus-circle"></i> Create Event</button>
-                        </form>
+                    <div class="kpi-card">
+                        <span class="kpi-label">TOTAL TICKETS ISSUED</span>
+                        <div class="kpi-value" id="stat-total-tickets">0</div>
+                        <span class="kpi-subtext">Digital Passes Issued</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">GATE CHECK-INS</span>
+                        <div class="kpi-value" id="stat-total-checkedin">0</div>
+                        <span class="kpi-subtext">Validated at Gate</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">TOTAL CAPACITY</span>
+                        <div class="kpi-value" id="stat-total-capacity">0</div>
+                        <span class="kpi-subtext">Cumulative Venues Seats</span>
                     </div>
                 </div>
 
-                <!-- Existing Events List -->
-                <div class="card glass">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-list-check"></i> Active Fest Events</h3>
-                        <button class="btn btn-sm btn-outline" onclick="loadEvents()"><i class="fa-solid fa-sync"></i></button>
+                <!-- Event Capacity & Real-Time Headcount Table -->
+                <div class="panel mt-4">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <h2>Event Capacity & Headcount Tracking</h2>
+                            <span class="panel-subtitle">Real-time attendance metrics vs. venue capacity limits</span>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="loadDashboardData()"><i class="fa-solid fa-arrows-rotate"></i> Refresh Data</button>
                     </div>
-                    <div class="card-body scrollable-container">
-                        <div id="events-list" class="events-list-container">
-                            <div class="empty-state">No events created yet.</div>
+                    <div class="panel-body">
+                        <div id="headcount-list" class="table-container">
+                            <div class="empty-state">Loading headcount metrics...</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- TAB 3: TICKETING & ISSUANCE -->
-        <section id="ticketing-tab" class="tab-content">
-            <div class="grid-2col">
-                <!-- Registration & Issue Form -->
-                <div>
-                    <!-- Register Attendee -->
-                    <div class="card glass mb-4">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-user-plus"></i> Step 1: Register Attendee</h3>
+            <!-- TAB 2: EVENTS & CAPACITY -->
+            <section id="events-tab" class="tab-content">
+                <div class="grid-2col">
+                    <!-- Create Event Form -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <h2>Create Fest Event</h2>
+                                <span class="panel-subtitle">Register new event with seat capacity limit</span>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <form id="create-attendee-form" onsubmit="handleCreateAttendee(event)">
+                        <div class="panel-body">
+                            <form id="create-event-form" onsubmit="handleCreateEvent(event)">
                                 <div class="form-group">
-                                    <label for="attendee-name">Full Name *</label>
-                                    <input type="text" id="attendee-name" required placeholder="e.g. John Doe">
+                                    <label for="event-name">Event Name <span class="required">*</span></label>
+                                    <input type="text" id="event-name" required placeholder="e.g. Annual Tech Symposium 2026">
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-venue">Venue / Auditorium <span class="required">*</span></label>
+                                    <input type="text" id="event-venue" required placeholder="e.g. Main Auditorium - Zone A">
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="attendee-email">Email Address *</label>
-                                        <input type="email" id="attendee-email" required placeholder="john@example.com">
+                                        <label for="event-capacity">Capacity Limit <span class="required">*</span></label>
+                                        <input type="number" id="event-capacity" min="1" required placeholder="e.g. 500">
                                     </div>
                                     <div class="form-group">
-                                        <label for="attendee-phone">Phone Number</label>
-                                        <input type="tel" id="attendee-phone" placeholder="+1 555-0199">
+                                        <label for="event-price">Ticket Price ($) <span class="required">*</span></label>
+                                        <input type="number" id="event-price" step="0.01" min="0" required placeholder="e.g. 25.00">
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-secondary btn-block"><i class="fa-solid fa-user-check"></i> Register Attendee</button>
+                                <div class="form-group">
+                                    <label for="event-date">Event Date & Time <span class="required">*</span></label>
+                                    <input type="datetime-local" id="event-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-desc">Description</label>
+                                    <textarea id="event-desc" rows="3" placeholder="Enter brief event description..."></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Create Event</button>
+                                </div>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Issue Digital Ticket -->
-                    <div class="card glass">
-                        <div class="card-header">
-                            <h3><i class="fa-solid fa-ticket"></i> Step 2: Issue Digital Ticket (QR Code)</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="purchase-ticket-form" onsubmit="handlePurchaseTicket(event)">
-                                <div class="form-group">
-                                    <label for="select-event">Select Fest Event *</label>
-                                    <select id="select-event" required>
-                                        <option value="">-- Choose Fest Event --</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="select-attendee">Select Attendee *</label>
-                                    <select id="select-attendee" required>
-                                        <option value="">-- Choose Attendee --</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-qrcode"></i> Issue QR Ticket</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Generated Ticket Preview Display -->
-                <div class="card glass">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-passkey"></i> Issued Ticket Preview</h3>
-                    </div>
-                    <div class="card-body">
-                        <div id="ticket-preview-container" class="ticket-preview-empty">
-                            <i class="fa-solid fa-qrcode placeholder-icon"></i>
-                            <p>Issue a ticket to display the digital pass & QR code here.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 4: GATE CHECK-IN & VALIDATION -->
-        <section id="validation-tab" class="tab-content">
-            <div class="grid-2col">
-                <!-- QR Code Entry Scanner / Form -->
-                <div class="card glass">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-shield-halved"></i> Gate Check-in QR Scanner</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="scanner-box">
-                            <i class="fa-solid fa-expand scanner-frame"></i>
-                            <p class="scanner-text">Enter or paste the ticket QR code token for gate verification</p>
-                        </div>
-
-                        <form id="validate-ticket-form" onsubmit="handleValidateTicket(event)">
-                            <div class="form-group">
-                                <label for="input-qrcode">QR Code Token *</label>
-                                <input type="text" id="input-qrcode" required placeholder="e.g. FEST-1-A1B2C3D4">
+                    <!-- Events List Table Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <h2>Active Fest Events</h2>
+                                <span class="panel-subtitle">Configured events & seat allocation</span>
                             </div>
-                            <button type="submit" class="btn btn-success btn-block btn-lg"><i class="fa-solid fa-circle-check"></i> Validate & Grant Entry</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Validation Result Display -->
-                <div class="card glass">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-clipboard-check"></i> Gate Verification Result</h3>
-                    </div>
-                    <div class="card-body">
-                        <div id="validation-result-container" class="validation-result-empty">
-                            <i class="fa-solid fa-barcode-read placeholder-icon"></i>
-                            <p>Scan/Validate a ticket QR code to display entry status result.</p>
+                            <button class="btn btn-secondary btn-sm" onclick="loadEvents()"><i class="fa-solid fa-arrows-rotate"></i> Reload</button>
+                        </div>
+                        <div class="panel-body">
+                            <div id="events-list" class="table-container">
+                                <div class="empty-state">No events created yet.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
 
-    <footer class="footer">
-        <p>FestPass &copy; 2026 | College Fest Ticketing & QR Check-in System | Powered by Spring Boot 3 & Java 21</p>
-    </footer>
+            <!-- TAB 3: TICKETING & ISSUANCE -->
+            <section id="ticketing-tab" class="tab-content">
+                <div class="grid-2col">
+                    <div>
+                        <!-- Step 1: Attendee Registration Form -->
+                        <div class="panel mb-4">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    <h2>Step 1: Attendee Registration</h2>
+                                    <span class="panel-subtitle">Register attendee details into master database</span>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <form id="create-attendee-form" onsubmit="handleCreateAttendee(event)">
+                                    <div class="form-group">
+                                        <label for="attendee-name">Full Name <span class="required">*</span></label>
+                                        <input type="text" id="attendee-name" required placeholder="e.g. Sanjit S R">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="attendee-email">Email Address <span class="required">*</span></label>
+                                            <input type="email" id="attendee-email" required placeholder="sanjit@example.com">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="attendee-phone">Phone Number</label>
+                                            <input type="tel" id="attendee-phone" placeholder="+1 555-0199">
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-user-plus"></i> Register Attendee</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Digital Ticket Purchase Form -->
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    <h2>Step 2: Issue Digital QR Ticket</h2>
+                                    <span class="panel-subtitle">Issue digital pass with unique QR token (enforces capacity rule)</span>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <form id="purchase-ticket-form" onsubmit="handlePurchaseTicket(event)">
+                                    <div class="form-group">
+                                        <label for="select-event">Select Event <span class="required">*</span></label>
+                                        <select id="select-event" required>
+                                            <option value="">-- Select Fest Event --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="select-attendee">Select Attendee <span class="required">*</span></label>
+                                        <select id="select-attendee" required>
+                                            <option value="">-- Select Registered Attendee --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-qrcode"></i> Issue Digital Pass</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Digital Ticket Pass Display Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <h2>Digital Pass Preview</h2>
+                                <span class="panel-subtitle">Generated QR code & verification metadata</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="ticket-preview-container" class="ticket-preview-empty">
+                                <i class="fa-solid fa-qrcode placeholder-icon"></i>
+                                <p>Select event & attendee to issue digital ticket pass.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: GATE CHECK-IN & QR VALIDATION -->
+            <section id="validation-tab" class="tab-content">
+                <div class="grid-2col">
+                    <!-- Scanner Input Form -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <h2>Gate Entry QR Validation</h2>
+                                <span class="panel-subtitle">Scan or input QR code token for gate check-in</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="scanner-frame">
+                                <i class="fa-solid fa-barcode scanner-icon"></i>
+                                <span class="scanner-label">Gate Scanner Terminal Active</span>
+                            </div>
+
+                            <form id="validate-ticket-form" onsubmit="handleValidateTicket(event)">
+                                <div class="form-group">
+                                    <label for="input-qrcode">QR Code Token String <span class="required">*</span></label>
+                                    <input type="text" id="input-qrcode" required placeholder="e.g. FEST-1-A1B2C3D4">
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-shield-check"></i> Validate & Grant Entry</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Validation Result Display -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <h2>Verification Result</h2>
+                                <span class="panel-subtitle">Gate entry decision & single-use audit logs</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="validation-result-container" class="validation-result-empty">
+                                <i class="fa-solid fa-clipboard-check placeholder-icon"></i>
+                                <p>Enter or scan ticket QR code token to verify admission.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: ATTENDEES LIST -->
+            <section id="attendees-tab" class="tab-content">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <h2>Registered Attendees Master Data</h2>
+                            <span class="panel-subtitle">Complete list of registered attendees in the database</span>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="loadAttendeesTable()"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                    </div>
+                    <div class="panel-body">
+                        <div id="attendees-table-container" class="table-container">
+                            <div class="empty-state">Loading attendees...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
 
     <script src="js/app.js"></script>
 </body>
