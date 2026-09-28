@@ -138,6 +138,13 @@ public class TicketService {
     }
 
     @Transactional(readOnly = true)
+    public List<TicketResponse> getAllTickets() {
+        return ticketRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<TicketResponse> getTicketsByEventId(Long eventId) {
         return ticketRepository.findByEventId(eventId).stream()
                 .map(this::mapToResponse)

@@ -42,6 +42,13 @@ public class TicketController {
         return ResponseEntity.ok(ApiResponse.success("QR Code Validated Successfully! Gate entry approved.", ticketResponse));
     }
 
+    @GetMapping
+    @Operation(summary = "Get all tickets")
+    public ResponseEntity<ApiResponse<List<TicketResponse>>> getAllTickets() {
+        List<TicketResponse> tickets = ticketService.getAllTickets();
+        return ResponseEntity.ok(ApiResponse.success("Tickets retrieved successfully", tickets));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get ticket by Ticket ID")
     public ResponseEntity<ApiResponse<TicketResponse>> getTicketById(@PathVariable Long id) {

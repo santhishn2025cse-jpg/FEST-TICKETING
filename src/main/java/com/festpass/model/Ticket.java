@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tickets")
+@Table(name = "ticket")
 public class Ticket {
 
     @Id
@@ -26,7 +26,7 @@ public class Ticket {
     @Column(nullable = false)
     private TicketStatus status = TicketStatus.ACTIVE;
 
-    @Column(name = "is_used", nullable = false)
+    @Column(name = "checked_in", nullable = false)
     private boolean isUsed = false;
 
     @Column(name = "purchased_at", nullable = false)

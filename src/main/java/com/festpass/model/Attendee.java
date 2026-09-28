@@ -1,3 +1,4 @@
+
 package com.festpass.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "attendees")
+@Table(name = "attendee")
 public class Attendee {
 
     @Id

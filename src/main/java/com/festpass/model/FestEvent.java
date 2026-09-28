@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "fest_events")
+@Table(name = "fest_event")
 public class FestEvent {
 
     @Id
@@ -44,6 +44,9 @@ public class FestEvent {
     @PositiveOrZero(message = "Ticket price must be zero or positive")
     @Column(nullable = false)
     private BigDecimal ticketPrice;
+
+    @Column(length = 30)
+    private String status = "UPCOMING";
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -116,6 +119,14 @@ public class FestEvent {
 
     public void setTicketPrice(BigDecimal ticketPrice) {
         this.ticketPrice = ticketPrice;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public List<Ticket> getTickets() {
