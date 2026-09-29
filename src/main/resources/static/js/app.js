@@ -1,3 +1,12 @@
+const isLocalhost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '[::1]';
+
+const API_BASE_URL = isLocalhost
+    ? 'http://localhost:8080'
+    : 'https://fest-ticketing-production.up.railway.app';
+
 // Global State
 let festEvents = [];
 let festAttendees = [];
@@ -53,10 +62,10 @@ function showToast(message, type = 'success') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     const icon = type === 'success' ? 'fa-check' : 'fa-triangle-exclamation';
     toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHtml(message)}</span>`;
-    
+
     container.appendChild(toast);
     setTimeout(() => {
         toast.style.opacity = '0';
@@ -67,11 +76,11 @@ function showToast(message, type = 'success') {
 // Load Dashboard & Headcount Data Table
 async function loadDashboardData() {
     try {
-        const eventsRes = await fetch('/api/events');
+        const eventsRes = await fetch(`${API_BASE_URL}/api/events`);
         const eventsData = await eventsRes.json();
-        
+
         if (!eventsData.success) return;
-        
+
         festEvents = eventsData.data || [];
         document.getElementById('stat-total-events').innerText = festEvents.length;
 
@@ -92,9 +101,9 @@ async function loadDashboardData() {
         let rowsHtml = '';
         for (const event of festEvents) {
             totalCapacitySum += event.capacity;
-            const hcRes = await fetch(`/api/events/${event.id}/headcount`);
+            const hcRes = await fetch(`${API_BASE_URL}/api/events/${event.id}/headcount`);
             const hcData = await hcRes.json();
-            
+
             if (hcData.success) {
                 const hc = hcData.data;
                 totalIssuedSum += hc.totalTicketsIssued;
@@ -116,7 +125,7 @@ async function loadDashboardData() {
                     <tr>
                         <td><strong>${escapeHtml(hc.eventName)}</strong></td>
                         <td>${escapeHtml(event.venue)}</td>
-                        <td>${new Date(event.eventDate).toLocaleDateString()} ${new Date(event.eventDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        <td>${new Date(event.eventDate).toLocaleDateString()} ${new Date(event.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                         <td>${hc.totalTicketsIssued} / ${hc.capacity}</td>
                         <td><strong>${hc.currentHeadcount}</strong> checked-in</td>
                         <td style="width: 200px;">
@@ -164,14 +173,14 @@ async function loadDashboardData() {
 // Load Events List
 async function loadEvents() {
     try {
-        const res = await fetch('/api/events');
+        const res = await fetch(`${API_BASE_URL}/api/events`);
         const data = await res.json();
         if (!data.success) return;
 
         festEvents = data.data || [];
         const container = document.getElementById('events-list');
         const select = document.getElementById('select-event');
-        
+
         select.innerHTML = '<option value="">-- Select Fest Event --</option>';
 
         if (festEvents.length === 0) {
@@ -181,7 +190,7 @@ async function loadEvents() {
 
         let rowsHtml = '';
         festEvents.forEach(evt => {
-            const dateStr = new Date(evt.eventDate).toLocaleDateString() + ' ' + new Date(evt.eventDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const dateStr = new Date(evt.eventDate).toLocaleDateString() + ' ' + new Date(evt.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             rowsHtml += `
                 <tr>
                     <td><code>EVT-${evt.id}</code></td>
@@ -233,7 +242,7 @@ function selectEventForPurchase(eventId) {
 // Load Attendees List
 async function loadAttendees() {
     try {
-        const res = await fetch('/api/attendees');
+        const res = await fetch(`${API_BASE_URL}/api/attendees`);
         const data = await res.json();
         if (!data.success) return;
 
@@ -254,7 +263,7 @@ async function loadAttendees() {
 
 async function loadAttendeesTable() {
     try {
-        const res = await fetch('/api/attendees');
+        const res = await fetch(`${API_BASE_URL}/api/attendees`);
         const data = await res.json();
         if (!data.success) return;
 
@@ -311,7 +320,7 @@ async function handleCreateEvent(e) {
     };
 
     try {
-        const res = await fetch('/api/events', {
+        const res = await fetch(`${API_BASE_URL}/api/events`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -341,7 +350,7 @@ async function handleCreateAttendee(e) {
     };
 
     try {
-        const res = await fetch('/api/attendees', {
+        const res = await fetch(`${API_BASE_URL}/api/attendees`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -369,7 +378,7 @@ async function handlePurchaseTicket(e) {
     };
 
     try {
-        const res = await fetch('/api/tickets/purchase', {
+        const res = await fetch(`${API_BASE_URL}/api/tickets/purchase`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -438,7 +447,7 @@ async function handleValidateTicket(e) {
     const qrCode = document.getElementById('input-qrcode').value.trim();
 
     try {
-        const res = await fetch('/api/tickets/validate', {
+        const res = await fetch(`${API_BASE_URL}/api/tickets/validate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ qrCode })

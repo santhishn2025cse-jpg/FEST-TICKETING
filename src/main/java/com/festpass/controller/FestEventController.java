@@ -69,4 +69,18 @@ public class FestEventController {
         EventHeadcountResponse headcount = eventService.getHeadcount(id);
         return ResponseEntity.ok(ApiResponse.success("Real-time event headcount retrieved", headcount));
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing fest event details")
+    public ResponseEntity<ApiResponse<FestEvent>> updateEvent(@PathVariable Long id, @Valid @RequestBody CreateEventRequest request) {
+        FestEvent updatedEvent = eventService.updateEvent(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Fest event updated successfully", updatedEvent));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a fest event by ID")
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long id) {
+        eventService.deleteEvent(id);
+        return ResponseEntity.ok(ApiResponse.success("Fest event deleted successfully", null));
+    }
 }

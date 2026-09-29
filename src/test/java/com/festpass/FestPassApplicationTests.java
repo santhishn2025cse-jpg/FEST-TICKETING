@@ -230,4 +230,75 @@ class FestPassApplicationTests {
                 .andExpect(jsonPath("$.data.remainingCapacity").value(3))
                 .andExpect(jsonPath("$.data.occupancyPercentage").value(20.0));
     }
+
+    @Test
+    @DisplayName("PUT /api/events/{id}: Update Fest Event details")
+    void testUpdateEvent() throws Exception {
+        FestEvent event = eventRepository.save(new FestEvent(null, "Old Title", "Old Desc", "Room 1", LocalDateTime.now().plusDays(1), 10, new BigDecimal("100.00")));
+
+        CreateEventRequest updateReq = new CreateEventRequest("New Title", "New Desc", "Main Hall", LocalDateTime.now().plusDays(2), 20, new BigDecimal("200.00"));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/events/" + event.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.name").value("New Title"))
+                .andExpect(jsonPath("$.data.capacity").value(20));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/events/{id}: Delete Fest Event")
+    void testDeleteEvent() throws Exception {
+        FestEvent event = eventRepository.save(new FestEvent(null, "Event To Delete", "Desc", "Room 2", LocalDateTime.now().plusDays(1), 5, new BigDecimal("50.00")));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/events/" + event.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        assertFalse(eventRepository.existsById(event.getId()));
+    }
+
+    @Test
+    @DisplayName("PUT & DELETE /api/attendees/{id}: Update and Delete Attendee")
+    void testUpdateAndDeleteAttendee() throws Exception {
+        com.festpass.model.Attendee attendee = attendeeRepository.save(new com.festpass.model.Attendee(null, "John Doe", "john@example.com", "12345"));
+
+        CreateAttendeeRequest updateReq = new CreateAttendeeRequest("John Updated", "john.updated@example.com", "99999");
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/attendees/" + attendee.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value("John Updated"));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/attendees/" + attendee.getId()))
+                .andExpect(status().isOk());
+
+        assertFalse(attendeeRepository.existsById(attendee.getId()));
+    }
+
+    @Test
+    @DisplayName("PUT /api/tickets/{id}/cancel & DELETE /api/tickets/{id}")
+    void testCancelAndDeleteTicket() throws Exception {
+        FestEvent event = eventRepository.save(new FestEvent(null, "Concert", "Music", "Hall", LocalDateTime.now().plusDays(2), 10, new BigDecimal("50.00")));
+        com.festpass.model.Attendee attendee = attendeeRepository.save(new com.festpass.model.Attendee(null, "Jane", "jane@example.com", "555"));
+
+        String tktStr = mockMvc.perform(post("/api/tickets/purchase").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new PurchaseTicketRequest(event.getId(), attendee.getId()))))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+
+        Long ticketId = objectMapper.readTree(tktStr).get("data").get("ticketId").asLong();
+
+        // Cancel ticket
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/tickets/" + ticketId + "/cancel"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("CANCELLED"));
+
+        // Delete ticket
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/tickets/" + ticketId))
+                .andExpect(status().isOk());
+
+        assertFalse(ticketRepository.existsById(ticketId));
+    }
 }

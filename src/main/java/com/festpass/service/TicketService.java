@@ -158,6 +158,22 @@ public class TicketService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public TicketResponse cancelTicket(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + id));
+        ticket.setStatus(TicketStatus.CANCELLED);
+        Ticket savedTicket = ticketRepository.save(ticket);
+        return mapToResponse(savedTicket);
+    }
+
+    @Transactional
+    public void deleteTicket(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + id));
+        ticketRepository.delete(ticket);
+    }
+
     private TicketResponse mapToResponse(Ticket ticket) {
         TicketResponse response = new TicketResponse();
         response.setTicketId(ticket.getId());

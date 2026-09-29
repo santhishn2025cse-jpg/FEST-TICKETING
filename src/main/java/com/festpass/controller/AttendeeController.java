@@ -61,4 +61,18 @@ public class AttendeeController {
         Attendee attendee = attendeeService.getAttendeeById(id);
         return ResponseEntity.ok(ApiResponse.success("Attendee details retrieved", attendee));
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update attendee details")
+    public ResponseEntity<ApiResponse<Attendee>> updateAttendee(@PathVariable Long id, @Valid @RequestBody CreateAttendeeRequest request) {
+        Attendee updatedAttendee = attendeeService.updateAttendee(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Attendee updated successfully", updatedAttendee));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an attendee by ID")
+    public ResponseEntity<ApiResponse<Void>> deleteAttendee(@PathVariable Long id) {
+        attendeeService.deleteAttendee(id);
+        return ResponseEntity.ok(ApiResponse.success("Attendee deleted successfully", null));
+    }
 }

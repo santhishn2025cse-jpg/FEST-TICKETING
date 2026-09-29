@@ -66,4 +66,22 @@ public class FestEventService {
                 checkedInCount
         );
     }
+
+    @Transactional
+    public FestEvent updateEvent(Long id, CreateEventRequest request) {
+        FestEvent event = getEventById(id);
+        event.setName(request.getName());
+        event.setDescription(request.getDescription());
+        event.setVenue(request.getVenue());
+        event.setEventDate(request.getEventDate());
+        event.setCapacity(request.getCapacity());
+        event.setTicketPrice(request.getTicketPrice());
+        return eventRepository.save(event);
+    }
+
+    @Transactional
+    public void deleteEvent(Long id) {
+        FestEvent event = getEventById(id);
+        eventRepository.delete(event);
+    }
 }

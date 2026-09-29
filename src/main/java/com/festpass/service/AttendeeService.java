@@ -51,4 +51,19 @@ public class AttendeeService {
         return attendeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Attendee not found with ID: " + id));
     }
+
+    @Transactional
+    public Attendee updateAttendee(Long id, CreateAttendeeRequest request) {
+        Attendee attendee = getAttendeeById(id);
+        attendee.setName(request.getName());
+        attendee.setEmail(request.getEmail());
+        attendee.setPhone(request.getPhone());
+        return attendeeRepository.save(attendee);
+    }
+
+    @Transactional
+    public void deleteAttendee(Long id) {
+        Attendee attendee = getAttendeeById(id);
+        attendeeRepository.delete(attendee);
+    }
 }

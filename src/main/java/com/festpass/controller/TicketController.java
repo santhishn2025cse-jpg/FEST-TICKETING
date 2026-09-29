@@ -76,4 +76,18 @@ public class TicketController {
         List<TicketResponse> tickets = ticketService.getTicketsByAttendeeId(attendeeId);
         return ResponseEntity.ok(ApiResponse.success("Attendee tickets retrieved", tickets));
     }
+
+    @PutMapping("/{id}/cancel")
+    @Operation(summary = "Cancel a ticket by ID")
+    public ResponseEntity<ApiResponse<TicketResponse>> cancelTicket(@PathVariable Long id) {
+        TicketResponse ticketResponse = ticketService.cancelTicket(id);
+        return ResponseEntity.ok(ApiResponse.success("Ticket cancelled successfully", ticketResponse));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete / revoke a ticket by ID")
+    public ResponseEntity<ApiResponse<Void>> deleteTicket(@PathVariable Long id) {
+        ticketService.deleteTicket(id);
+        return ResponseEntity.ok(ApiResponse.success("Ticket deleted successfully", null));
+    }
 }
